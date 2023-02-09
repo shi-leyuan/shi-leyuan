@@ -1,0 +1,78 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+
+//// &“与”运算（二进制位）        
+///*
+//* 有0则0
+//* a=00000000 00000000 00000000 00000011
+//* b=00000000 00000000 00000000 00000101
+//* c=00000000 00000000 00000000 00000001
+//*/
+////  |按位或（有1则1）
+////  ^按位异或（相同则0，相异则1）
+//int main()
+//{
+//	int a = 3;
+//	int b = 5;
+//	int c = a & b;
+//	printf("c=%d", c);
+//	return 0;
+//}
+
+                      //交换a，b的值  eg：a=3，b=5
+////①使用中间变量
+//int main()
+//{
+//    int a = 3;
+//    int b = 5;
+//    int x = 0;
+//    x = a;
+//    a = b;
+//    b = x;
+//    printf("a=%d\nb=%d\n", a, b);
+//    return 0;
+//}
+
+//②加减法（有缺陷，可能会超过整型的最大数）
+//int main()
+//{
+//    int a = 3;
+//    int b = 5;
+//    a = a + b;
+//    b = a - b;
+//    a = a - b;
+//    printf("a=%d\nb=%d\n", a, b);
+//    return 0;
+//}
+
+//③异或操作
+//int main()
+//{
+//    int a = 3;
+//    int b = 5;
+//    a = a ^ b;
+//    b = a ^ b;
+//    a = a ^ b;
+//    printf("a=%d\nb=%d\n", a, b);
+//    return 0;
+//}
+
+//计算一个数的二进制位中有多少个1
+//①(有缺陷 ，不能计算负数)
+int main()              
+{
+    int i = 0;
+    printf("please enter i:");
+    int count = 0;
+    scanf("%d", &i);
+    while (i)
+    {
+        if (i % 2 == 1)
+        {
+            count++;
+        }
+        i = i / 2;
+    }
+    printf("count=%d", count);
+    return 0;
+}

@@ -1,0 +1,109 @@
+#include<stdio.h>
+#include<string.h>
+#include<graphics.h>  //easyx图形库的头文件
+#include<windows.h>
+//#include<easyx.h>
+#include<mmsystem.h>
+#pragma comment(lib,"winmm.lib")
+
+#define WIN_WIDTH  800
+#define WIN_HEIGHT 600		
+
+IMAGE imgMuyu[16];
+int textX;
+int textY;
+void init()
+{
+	//初始化，加载木鱼
+	loadimage(&imgMuyu[0], L"res/muyu.jpg");
+	int w = imgMuyu[0].getwidth();       //获取图片宽度
+	int h = imgMuyu[0].getheight();      //获取图片高度
+	int i = 0;
+	for (i = 1; i < 8; i++)           //变小的8张
+	{
+		float k = 1 - 0.02 * i;
+		loadimage(&imgMuyu[i], L"res/muyu.jpg", w * k, h * k, true);
+	}
+	for (i = 8; i < 16; i++)
+	{
+		float k = 0.86 + 0.02 * float(i - 8);
+		loadimage(&imgMuyu[i], L"res/muyu.jpg", w * k, h * k, true);
+
+	}
+	//创建窗口
+	initgraph(800, 600);
+	//设置字体
+	LOGFONT f;
+	gettextstyle(&f);  //获取当前字体
+	f.lfHeight = 20;   
+	f.lfWidth = 0;       //0表示默认宽度
+	//strcpy(f.lfFaceName, "微软雅黑");
+	f.lfQuality = ANTIALIASED_QUALITY;
+	setbkmode(TRANSPARENT);
+	settextstyle(&f);
+
+}
+
+void welcome()      //播放音乐
+{
+	mciSendString(_T("open./res/music.mp3"), NULL, 0, NULL);
+	mciSendString(_T("play./res/music.mp3"), NULL, 0, NULL);
+
+	welcome();
+}
+
+void updateWindow()
+{
+	//刷新画面
+	int centX = WIN_WIDTH / 2;          //中心点坐标
+	int centY = WIN_HEIGHT / 2 + 50;
+	int tmpY = textY;
+	int color = 0xFFFFFF;
+	for (int i = 0; i < 16; i++)
+	{
+		BeginBatchDraw();  //双缓存，开始绘制
+		setbkcolor(BLACK);   //设置背景颜色
+		cleardevice();     //使用当前背景颜色
+		int x = centX - imgMuyu[i].getwidth() / 2;
+		int y = centY - imgMuyu[i].getheight() / 2;
+		putimage(x, y, &imgMuyu[i]);
+		//颜色递减
+		settextcolor(color);
+		color -= 0x111111;
+		//打印功德+1
+		outtextxy(textX, tmpY, L"功德+1");
+		tmpY -= 5;
+		EndBatchDraw();    //双缓存，避免画面抖动
+
+		Sleep(20);   //等待20ms
+	}
+}
+bool keyEvent()  //处理用户敲击，有为真
+{
+	ExMessage msg;
+	if (peekmessage(&msg) && msg.message == WM_LBUTTONDOWN)
+	{
+		textX = msg.x;
+		textY = msg.y;
+		return true;
+	}
+	return false;
+}
+int main()
+{
+	init();
+	//绘制初始画面
+	int x = WIN_WIDTH / 2 - imgMuyu[0].getwidth() / 2;
+	int y = WIN_HEIGHT / 2 - imgMuyu[0].getheight() / 2 + 50;
+	putimage(x, y, &imgMuyu[0]);
+	while (1)
+	{
+		if (keyEvent())
+		{
+			updateWindow();    //更新窗口
+		}
+	}
+	welcome();
+	//getchar();
+	return 0;
+}

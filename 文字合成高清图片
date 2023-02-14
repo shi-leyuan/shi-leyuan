@@ -1,0 +1,83 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<graphics.h>    //easyx图形库
+//#include <Windows.h>
+//#include <tchar.h>
+
+void setFont()     //设置字体
+{
+	LOGFONT f;    
+	gettextstyle(&f);  //获取当前字体
+	f.lfHeight = 12; //字体高度
+	f.lfWidth = 0;   //字体宽度，0为默认值
+	strcpy(f.lfFaceName, "黑体");//字体类型
+	f.lfQuality = ANTIALIASED_QUALITY;  //字体抗锯齿
+	settextstyle(&f);
+}
+int main()
+{
+	char str[256];
+	printf("请输入要合成的话：");
+	scanf_s("%s", str, sizeof(str));
+	initgraph(200, 50);  //创建窗口
+	IMAGE img;
+	//加载图片
+	loadimage(&img, "image.jpg");
+	int width = img.getwidth(); //获取图片宽度
+	int height = img.getheight(); //获取图片高度
+
+	//把汉字字符串转为多个子字符串
+	int count = strlen(str) / 2;
+	char** data = (char**)malloc(sizeof(char*) * count);
+    //再次分配内存
+	for (int i = 0; i < count; i++)
+	{
+		data[i] = (char*)malloc(sizeof(char) * 3);
+		strncpy(data[i], &str[i * 2], 2);
+		data[i][2] = 0; 
+	}
+	//动态地址分配
+	int* pix = (int*)malloc(sizeof(int) * width * height);
+	if (pix == NULL)
+	{
+		printf("内存分配失败\n");
+		return 1;
+	}
+	SetWorkingImage(&img);//设置图片操作区
+	int k = 0;
+	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++) 
+		{
+			pix[k++] = getpixel(j, i);  //j是水平坐标
+		}
+	}
+	SetWorkingImage(); //恢复默认工作区
+	//画文字
+	IMAGE imgDest;  //目标图片
+	imgDest.Resize(width * 12, height * 12); 
+	SetWorkingImage(&imgDest); //重设工作区
+	int index = 0;
+	//设置字体
+	setFont();
+	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			//配置颜色
+			settextcolor(pix[i * width + j]);
+			//写字符串
+			outtextxy(j * 12, i * 12, data[index]);
+			index = (index + 1) % count;
+		}
+	}
+	SetWorkingImage();
+	//保存图片
+	saveimage("666.jpg", &imgDest);
+	//自动打开图片
+	system("mspaint.exe 666.jpg");
+	//释放内存
+	free(data);
+	closegraph();
+	return 0;
+}
